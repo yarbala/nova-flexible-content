@@ -8,6 +8,11 @@ An easy & complete Flexible Field for Laravel Nova, perfect for repeated and fle
 
 ![Laravel Nova Flexible Content in action](https://github.com/whitecube/nova-flexible-content/raw/master/presentation.gif)
 
+## Some improvements for adding blocks in this fork
+
+- You can close "Block type selection menu" by clicking to free space
+- Removed "collapsable blocks" capability, "+" button adds ability to add blocks before the current block. 
+
 ## Quick start
 
 Here's a very condensed guide to get you started asap.

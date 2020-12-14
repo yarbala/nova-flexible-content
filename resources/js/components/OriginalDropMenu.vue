@@ -25,6 +25,7 @@
             class="btn btn-default btn-primary inline-flex items-center relative"
             @click="toggleLayoutsDropdownOrAddDefault"
             v-if="this.limitCounter != 0"
+            v-click-outside="closeDropMenu"
         >
             <span>{{ field.button }}</span>
         </button>
@@ -32,9 +33,15 @@
 </template>
 
 <script>
+    import ClickOutside from 'vue-click-outside'
 
     export default {
         props: ['layouts', 'field', 'resourceName', 'resourceId', 'resource', 'errors', 'limitCounter'],
+
+        mounted () {
+            // prevent click outside event with popupItem.
+            this.popupItem = this.$el
+        },
 
         data() {
             return {
@@ -65,6 +72,14 @@
 
                 this.isLayoutsDropdownOpen = false;
             },
+
+            closeDropMenu: function (event) {
+                this.isLayoutsDropdownOpen = false;
+            },
+        },
+
+        directives: {
+            ClickOutside
         }
     }
 </script>

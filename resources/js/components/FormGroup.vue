@@ -1,23 +1,34 @@
 <template>
     <div class="relative flex bg-white mb-4 pb-1" :id="group.key">
         <div class="z-10 bg-white border-t border-l border-b border-60 h-auto pin-l pin-t rounded-l self-start w-8">
-            <button
-                dusk="expand-group"
-                type="button"
-                class="group-control btn border-r border-40 w-8 h-8 block"
-                :title="__('Expand')"
-                @click.prevent="expand"
-                v-if="collapsed">
-                <icon class="align-top" type="plus-square" width="16" height="16" view-box="0 0 24 24" />
-            </button>
-            <div v-if="!collapsed">
+            <div>
+                <div class="relative" v-if="layouts.length > 1">
+                    <div v-if="isLayoutsDropdownOpen"
+                         class="drop-menu-select-layout absolute rounded-lg shadow-lg mb-3 pin-b max-h-search overflow-y-auto border border-40"
+                    >
+                        <div>
+                            <ul class="list-reset">
+                                <li v-for="layout in layouts" class="border-b border-40">
+                                    <a
+                                        :dusk="'add-' + layout.name"
+                                        @click="addGroup(layout, index)"
+                                        class="cursor-pointer flex items-center hover:bg-30 block py-2 px-3 no-underline font-normal bg-20">
+                                        <div><p class="text-90">{{ layout.title }}</p></div>
+                                    </a>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
                 <button
-                    dusk="collapse-group"
+                    dusk="add-block"
                     type="button"
                     class="group-control btn border-r border-40 w-8 h-8 block"
-                    :title="__('Collapse')"
-                    @click.prevent="collapse">
-                    <icon class="align-top" type="minus-square" width="16" height="16" view-box="0 0 24 24" />
+                    :title="__('Add block before this ')"
+                    @click.prevent="toggleLayoutsDropdownOrAddDefault"
+                    v-click-outside="closeDropMenu"
+                >
+                    <icon class="align-top" type="plus-square" width="16" height="16" view-box="0 0 24 24" />
                 </button>
                 <div v-if="!readonly">
                     <button
@@ -59,8 +70,7 @@
         </div>
         <div class="-mb-1 flex flex-col min-h-full w-full">
             <div :class="titleStyle" v-if="group.title">
-                <div class="leading-normal py-1 px-8"
-                    :class="{'border-b border-40': !collapsed}">
+                <div class="leading-normal py-1 px-8 border-b border-40">
                     <p class="text-80">
                       <span class="mr-4 font-semibold">#{{ index + 1 }}</span>
                       {{ group.title }}
@@ -87,26 +97,29 @@
 
 <script>
 import { BehavesAsPanel } from 'laravel-nova';
+import ClickOutside from 'vue-click-outside'
 
 export default {
     mixins: [BehavesAsPanel],
 
-    props: ['errors', 'group', 'index', 'field'],
+    props: ['layouts', 'errors', 'group', 'index', 'field'],
+
+    mounted () {
+        // prevent click outside event with popupItem.
+        this.popupItem = this.$el
+    },
 
     data() {
         return {
             removeMessage: false,
-            collapsed: this.group.collapsed,
             readonly: this.group.readonly,
+            isLayoutsDropdownOpen: false,
         };
     },
 
     computed: {
         titleStyle() {
             let classes = ['border-t', 'border-r', 'border-60', 'rounded-tr-lg'];
-            if (this.collapsed) {
-                classes.push('border-b rounded-br-lg');
-            }
             return classes;
         },
         containerStyle() {
@@ -114,9 +127,6 @@ export default {
             if(!this.group.title) {
                 classes.push('border-t');
                 classes.push('rounded-tr-lg');
-            }
-            if (this.collapsed) {
-                classes.push('hidden');
             }
             return classes;
         }
@@ -156,23 +166,45 @@ export default {
         },
 
         /**
-         * Expand fields
+         * Display or hide the layouts choice dropdown if there are multiple layouts
+         * or directly add the only available layout.
          */
-        expand() {
-            this.collapsed = false;
+        toggleLayoutsDropdownOrAddDefault(event) {
+            if (this.layouts.length === 1) {
+                return this.addGroup(this.layouts[0]);
+            }
+
+            this.isLayoutsDropdownOpen = !this.isLayoutsDropdownOpen;
         },
 
+
         /**
-         * Collapse fields
+         * Append the given layout to flexible content's list
          */
-        collapse() {
-            this.collapsed = true;
+        addGroup(layout, index) {
+            if (!layout) return;
+
+            this.$emit('addGroup', layout, null, null, null, index);
+
+            this.isLayoutsDropdownOpen = false;
+        },
+
+        closeDropMenu: function (event) {
+            this.isLayoutsDropdownOpen = false;
         }
     },
+
+    directives: {
+        ClickOutside
+    }
 }
 </script>
 
 <style>
+    .drop-menu-select-layout {
+        width: 200px;
+    }
+
     .group-control:focus {
         outline: none;
     }

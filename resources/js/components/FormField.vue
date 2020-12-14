@@ -20,9 +20,11 @@
                     :resource-id="resourceId"
                     :resource="resource"
                     :errors="errors"
+                    :layouts="layouts"
                     @move-up="moveUp(group.key)"
                     @move-down="moveDown(group.key)"
                     @remove="remove(group.key)"
+                    @addGroup="addGroup"
                 />
             </div>
 
@@ -173,7 +175,7 @@ export default {
         /**
          * Append the given layout to flexible content's list
          */
-        addGroup(layout, attributes, key, collapsed) {
+        addGroup(layout, attributes, key, collapsed, index) {
             if(!layout) return;
 
             collapsed = collapsed || false;
@@ -182,7 +184,13 @@ export default {
                 group = new Group(layout.name, layout.title, fields, this.field, key, collapsed);
 
             this.groups[group.key] = group;
-            this.order.push(group.key);
+
+            if (index && index > 0) {
+                this.order.splice(index, 0, group.key);
+            } else {
+                this.order.push(group.key);
+            }
+
 
             if (this.limitCounter > 0) {
                 this.limitCounter--;

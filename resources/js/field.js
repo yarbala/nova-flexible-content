@@ -1,4 +1,6 @@
 Nova.booting((Vue, router, store) => {
+    Vue.config.devtools = true
+
     // Vue.component('index-nova-flexible-content', require('./components/IndexField'))
     Vue.component('detail-nova-flexible-content', require('./components/DetailField'))
     Vue.component('detail-nova-flexible-content-group', require('./components/DetailGroup'))
